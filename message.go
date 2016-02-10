@@ -11,9 +11,10 @@ const (
 // the GCM server. See the documentation for GCM Architectural
 // Overview for more information:
 // http://developer.android.com/google/gcm/gcm.html#send-msg
+type GcmToken string
 type Message struct {
 	To                    string                 `json:"to,omitempty"`
-	RegistrationIDs       []string               `json:"registration_ids,omitempty"`
+	RegistrationIDs       []GcmToken             `json:"registration_ids,omitempty"`
 	CollapseKey           string                 `json:"collapse_key,omitempty"`
 	Data                  map[string]interface{} `json:"data,omitempty"`
 	Notification          Notification           `json:"notification,omitempty"`
@@ -42,11 +43,11 @@ type Notification struct {
 
 // NewMessage returns a new Message with the specified payload
 // and registration IDs.
-func NewMessage(data map[string]interface{}, regIDs ...string) *Message {
+func NewMessage(data map[string]interface{}, regIDs ...GcmToken) *Message {
 	return &Message{RegistrationIDs: regIDs, Data: data}
 }
 
-func NewNotification(notification Notification, regIDs ...string) *Message {
+func NewNotification(notification Notification, regIDs ...GcmToken) *Message {
 	return &Message{RegistrationIDs: regIDs, Notification: notification}
 }
 
@@ -54,6 +55,6 @@ func NewTopicMessage(data map[string]interface{}, topic string) *Message {
 	return &Message{To: topic, Data: data}
 }
 
-func NewMessageWithNotification(data map[string]interface{}, notification Notification, regIDs ...string) *Message {
+func NewMessageWithNotification(data map[string]interface{}, notification Notification, regIDs ...GcmToken) *Message {
 	return &Message{RegistrationIDs: regIDs, Data: data, Notification: notification}
 }

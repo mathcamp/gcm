@@ -115,7 +115,7 @@ func (s *Sender) Send(msg *Message, retries int) (*Response, error) {
 
 	// One or more messages failed to send.
 	regIDs := msg.RegistrationIDs
-	allResults := make(map[string]Result, len(regIDs))
+	allResults := make(map[GcmToken]Result, len(regIDs))
 	backoff := backoffInitialDelay
 	for i := 0; updateStatus(msg, resp, allResults) > 0 && i < retries; i++ {
 		sleepTime := backoff/2 + rand.Intn(backoff)
@@ -158,8 +158,8 @@ func (s *Sender) Send(msg *Message, retries int) (*Response, error) {
 
 // updateStatus updates the status of the messages sent to devices and
 // returns the number of recoverable errors that could be retried.
-func updateStatus(msg *Message, resp *Response, allResults map[string]Result) int {
-	unsentRegIDs := make([]string, 0, resp.Failure)
+func updateStatus(msg *Message, resp *Response, allResults map[GcmToken]Result) int {
+	unsentRegIDs := make([]GcmToken, 0, resp.Failure)
 	for i := 0; i < len(resp.Results); i++ {
 		regID := msg.RegistrationIDs[i]
 		allResults[regID] = resp.Results[i]

@@ -39,7 +39,7 @@ func TestSendNoRetryInvalidApiKey(t *testing.T) {
 	server := startTestServer(t)
 	defer server.Close()
 	sender := &Sender{ApiKey: ""}
-	if _, err := sender.SendNoRetry(&Message{RegistrationIDs: []string{"1"}}); err == nil {
+	if _, err := sender.SendNoRetry(&Message{RegistrationIDs: []GcmToken{"1"}}); err == nil {
 		t.Fatal("test should fail when sender's ApiKey is \"\"")
 	}
 }
@@ -48,7 +48,7 @@ func TestSendInvalidApiKey(t *testing.T) {
 	server := startTestServer(t)
 	defer server.Close()
 	sender := &Sender{ApiKey: ""}
-	if _, err := sender.Send(&Message{RegistrationIDs: []string{"1"}}, 0); err == nil {
+	if _, err := sender.Send(&Message{RegistrationIDs: []GcmToken{"1"}}, 0); err == nil {
 		t.Fatal("test should fail when sender's ApiKey is \"\"")
 	}
 }
@@ -63,19 +63,19 @@ func TestSendNoRetryInvalidMessage(t *testing.T) {
 	if _, err := sender.SendNoRetry(&Message{}); err == nil {
 		t.Fatal("test should fail when message RegistrationIDs field is nil")
 	}
-	if _, err := sender.SendNoRetry(&Message{RegistrationIDs: []string{}}); err == nil {
+	if _, err := sender.SendNoRetry(&Message{RegistrationIDs: []GcmToken{}}); err == nil {
 		t.Fatal("test should fail when message RegistrationIDs field is an empty slice")
 	}
-	if _, err := sender.SendNoRetry(&Message{RegistrationIDs: make([]string, 1001)}); err == nil {
+	if _, err := sender.SendNoRetry(&Message{RegistrationIDs: make([]GcmToken, 1001)}); err == nil {
 		t.Fatal("test should fail when more than 1000 RegistrationIDs are specified")
 	}
-	if _, err := sender.SendNoRetry(&Message{RegistrationIDs: []string{"1"}, TimeToLive: -1}); err == nil {
+	if _, err := sender.SendNoRetry(&Message{RegistrationIDs: []GcmToken{"1"}, TimeToLive: -1}); err == nil {
 		t.Fatal("test should fail when message TimeToLive field is negative")
 	}
-	if _, err := sender.SendNoRetry(&Message{RegistrationIDs: []string{"1"}, TimeToLive: 2419201}); err == nil {
+	if _, err := sender.SendNoRetry(&Message{RegistrationIDs: []GcmToken{"1"}, TimeToLive: 2419201}); err == nil {
 		t.Fatal("test should fail when message TimeToLive field is greater than 2419200")
 	}
-	if _, err := sender.SendNoRetry(&Message{RegistrationIDs: []string{"1"}, Priority: "invalid"}); err == nil {
+	if _, err := sender.SendNoRetry(&Message{RegistrationIDs: []GcmToken{"1"}, Priority: "invalid"}); err == nil {
 		t.Fatal("test should fail when priority value is not high or normal")
 	}
 }
@@ -90,19 +90,19 @@ func TestSendInvalidMessage(t *testing.T) {
 	if _, err := sender.Send(&Message{}, 0); err == nil {
 		t.Fatal("test should fail when message RegistrationIDs field is nil")
 	}
-	if _, err := sender.Send(&Message{RegistrationIDs: []string{}}, 0); err == nil {
+	if _, err := sender.Send(&Message{RegistrationIDs: []GcmToken{}}, 0); err == nil {
 		t.Fatal("test should fail when message RegistrationIDs field is an empty slice")
 	}
-	if _, err := sender.Send(&Message{RegistrationIDs: make([]string, 1001)}, 0); err == nil {
+	if _, err := sender.Send(&Message{RegistrationIDs: make([]GcmToken, 1001)}, 0); err == nil {
 		t.Fatal("test should fail when more than 1000 RegistrationIDs are specified")
 	}
-	if _, err := sender.Send(&Message{RegistrationIDs: []string{"1"}, TimeToLive: -1}, 0); err == nil {
+	if _, err := sender.Send(&Message{RegistrationIDs: []GcmToken{"1"}, TimeToLive: -1}, 0); err == nil {
 		t.Fatal("test should fail when message TimeToLive field is negative")
 	}
-	if _, err := sender.Send(&Message{RegistrationIDs: []string{"1"}, TimeToLive: 2419201}, 0); err == nil {
+	if _, err := sender.Send(&Message{RegistrationIDs: []GcmToken{"1"}, TimeToLive: 2419201}, 0); err == nil {
 		t.Fatal("test should fail when message TimeToLive field is greater than 2419200")
 	}
-	if _, err := sender.Send(&Message{RegistrationIDs: []string{"1"}, Priority: "invalid"}, 0); err == nil {
+	if _, err := sender.Send(&Message{RegistrationIDs: []GcmToken{"1"}, Priority: "invalid"}, 0); err == nil {
 		t.Fatal("test should fail when priority value is not high or normal")
 	}
 }
