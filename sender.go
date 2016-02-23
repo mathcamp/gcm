@@ -114,37 +114,30 @@ func (s *Sender) Send(msg *Message, retries int) (*Response, error) {
 	}
 
 	// One or more messages failed to send.
-	regIDs := msg.RegistrationIDs
-	allResults := make(map[GcmToken]Result, len(regIDs))
+	allResults := make(map[string]Result)
 	backoff := backoffInitialDelay
 	for i := 0; updateStatus(msg, resp, allResults) > 0 && i < retries; i++ {
 		sleepTime := backoff/2 + rand.Intn(backoff)
 		time.Sleep(time.Duration(sleepTime) * time.Millisecond)
 		backoff = min(2*backoff, maxBackoffDelay)
 		if resp, err = s.SendNoRetry(msg); err != nil {
-			msg.RegistrationIDs = regIDs
 			return nil, err
 		}
 	}
 
-	// Bring the message back to its original state.
-	msg.RegistrationIDs = regIDs
-
 	// Create a Response containing the overall results.
-	finalResults := make([]Result, len(regIDs))
+	finalResults := make([]Result, 1)
 	var success, failure, canonicalIDs int
-	for i := 0; i < len(regIDs); i++ {
-		result, _ := allResults[regIDs[i]]
-		finalResults[i] = result
-		if result.MessageID != "" {
-			if result.RegistrationID != "" {
-				canonicalIDs++
-			}
-			success++
-		} else {
-			failure++
-		}
-	}
+  result, _ := allResults[msg.To]
+  finalResults = append(finalResults, result)
+  if result.MessageID != "" {
+    if result.RegistrationID != "" {
+      canonicalIDs++
+    }
+    success++
+  } else {
+    failure++
+  }
 
 	return &Response{
 		// Return the most recent multicast id.
@@ -158,23 +151,14 @@ func (s *Sender) Send(msg *Message, retries int) (*Response, error) {
 
 // updateStatus updates the status of the messages sent to devices and
 // returns the number of recoverable errors that could be retried.
-func updateStatus(msg *Message, resp *Response, allResults map[GcmToken]Result) int {
-	unsentRegIDs := make([]GcmToken, 0, resp.Failure)
-	for i := 0; i < len(resp.Results); i++ {
-		regID := msg.RegistrationIDs[i]
-		allResults[regID] = resp.Results[i]
-		if resp.Results[i].Error == "Unavailable" {
-			unsentRegIDs = append(unsentRegIDs, regID)
-		}
-	}
-	msg.RegistrationIDs = unsentRegIDs
-	if len(unsentRegIDs) > 0 {
-		return len(unsentRegIDs)
-	} else if msg.To != "" && resp.Failure != 0 {
-		return 1
-	} else {
-		return 0
-	}
+func updateStatus(msg *Message, resp *Response, allResults map[string]Result) int {
+  if len(resp.Results) > 0 {
+    allResults[msg.To] = resp.Results[0]
+    if resp.Results[0].Error == "Unavailable" {
+      return 1
+    }
+  }
+  return 0
 }
 
 // min returns the smaller of two integers. For exciting religious wars
