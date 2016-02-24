@@ -55,6 +55,6 @@ func NewTopicMessage(data map[string]interface{}, topic string) *Message {
 	return &Message{To: topic, Data: data}
 }
 
-func NewMessageWithNotificationTo(data map[string]interface{}, notification Notification, to GcmToken) *Message {
-	return &Message{To: string(to), Data: data, Notification: notification}
+func NewMessageWithNotification(data map[string]interface{}, notification Notification, regIDs ...GcmToken) *Message {
+	return &Message{RegistrationIDs: regIDs, Data: data, Notification: notification}
 }
